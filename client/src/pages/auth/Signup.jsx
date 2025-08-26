@@ -51,7 +51,7 @@ function Signup() {
         </p>
       </div>
       <CommonForm
-        formcontrols={registerFormControl}
+        formControls={registerFormControl}
         buttonText={"Sign Up"}
         formData={formData}
         setFormData={setFormData}

@@ -3,6 +3,11 @@ const mongooose = require('mongoose')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const authRouter=require('./routes/auth/authroutes.js')
+const adminProductRouter=require('./routes/admin/products-routes.js')
+
+
+
+
 require('dotenv').config()
 const app = express()
 const PORT = process.env.PORT || 8000
@@ -15,6 +20,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'cache-control','Expires','pragma']
 }))
 app.use('/api/auth',authRouter)
+app.use('/api/admin/products',adminProductRouter)
 //database connection
 mongooose.connect(process.env.MONGO_URI).then(() => {
     console.log("Database connected")

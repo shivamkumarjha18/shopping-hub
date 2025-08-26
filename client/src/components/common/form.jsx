@@ -16,7 +16,7 @@ const types = {
 };
 
 function CommonForm({
-  formcontrols = [], // ✅ default empty array
+  formControls = [], // ✅ default empty array
   formData = {}, // ✅ default empty object
   setFormData = () => {}, // ✅ default no-op function
   onSubmit = (e) => e.preventDefault(), // ✅ prevent crash if not passed
@@ -60,7 +60,7 @@ function CommonForm({
               {Array.isArray(getcontrolitem.options) &&
               getcontrolitem.options.length > 0
                 ? getcontrolitem.options.map((optionItem) => (
-                    <SelectItem key={optionItem.id} value={optionItem.value}>
+                    <SelectItem key={optionItem.id} value={optionItem.id}>
                       {optionItem.label}
                     </SelectItem>
                   ))
@@ -113,8 +113,8 @@ function CommonForm({
   return (
     <form onSubmit={onSubmit}>
       <div className="flex flex-col gap-4">
-        {Array.isArray(formcontrols) && formcontrols.length > 0 ? (
-          formcontrols.map((controlitem) => (
+        {Array.isArray(formControls) && formControls.length > 0 ? (
+          formControls.map((controlitem) => (
             <div className="grid w-full gap-1.5" key={controlitem.name}>
               <Label className="text-sm font-medium">{controlitem.label}</Label>
               {renderInputByComponentType(controlitem)}

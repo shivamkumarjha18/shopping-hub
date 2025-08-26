@@ -47,7 +47,7 @@ function Login() {
         </p>
       </div>
       <CommonForm
-        formcontrols={LoginFormControl}
+        formControls={LoginFormControl}
         buttonText={"Login"}
         formData={formData}
         setFormData={setFormData}
