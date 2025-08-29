@@ -1,57 +1,69 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from 'react-router-dom';
 
-function CheckAuth({ isAuthenticated, user, children }) {
+function CheckAuth({ isAuthenticated, user, children, isLoading }) {
   const location = useLocation();
 
-  console.log("Path:", location.pathname, "Auth:", isAuthenticated, "User:", user);
+  // 🛑 Jab tak loading hai, kuch nahi dikhana
+  if (isLoading) {
+    console.log(`CheckAuth: Loading state for path ${location.pathname}`);
+    return <div>Loading...</div>;
+  }
 
+  // Debugging log
+  console.log(
+    `CheckAuth: Path: ${location.pathname}, Auth: ${isAuthenticated}, User: ${
+      user ? JSON.stringify(user) : 'null'
+    }`
+  );
+
+  // Define auth pages
   const isAuthPage =
-    location.pathname.includes("/auth/login") ||
-    location.pathname.includes("/auth/signup");
+    location.pathname === '/auth/login' || location.pathname === '/auth/signup';
 
-  // 1️⃣ Root path ("/") → redirect according to login state
-  if (location.pathname === "/") {
+  // 1. Root path handling
+  if (location.pathname === '/') {
+    console.log('CheckAuth: Root path accessed');
     if (!isAuthenticated) {
-      return <Navigate to="/auth/login" replace />;
+      console.log('CheckAuth: Not authenticated, redirecting to /auth/login');
+      return <Navigate to='/auth/login' replace />;
     }
-    if (user?.role === "admin") {
-      return <Navigate to="/admin" replace />;
+    if (user?.role === 'admin') {
+      console.log('CheckAuth: Admin user, redirecting to /admin');
+      return <Navigate to='/admin' replace />;
     }
-    return <Navigate to="/shopping" replace />;
+    console.log('CheckAuth: Non-admin user, redirecting to /shopping');
+    return <Navigate to='/shopping/home' replace />;
   }
 
-  // 2️⃣ Agar login nahi hai aur non-auth page access kar raha hai
+  // 2. Unauthorized access for non-authenticated users
   if (!isAuthenticated && !isAuthPage) {
-    return <Navigate to="/auth/login" replace />;
+    console.log(`CheckAuth: Not authenticated for ${location.pathname}, redirecting to /auth/login`);
+    return <Navigate to='/auth/login' replace />;
   }
 
-  // 3️⃣ Agar login hai aur login/signup pe gaya
+  // 3. Redirect authenticated users from auth pages
   if (isAuthenticated && isAuthPage) {
-    if (user?.role === "admin") {
-      return <Navigate to="/admin" replace />;
+    if (user?.role === 'admin') {
+      console.log('CheckAuth: Authenticated admin on auth page, redirecting to /admin');
+      return <Navigate to='/admin' replace />;
     }
-    return <Navigate to="/shopping" replace />;
+    console.log('CheckAuth: Authenticated non-admin on auth page, redirecting to /shopping');
+    return <Navigate to='/shopping' replace />;
   }
 
-  // 4️⃣ Prevent normal user from accessing admin
-  if (
-    isAuthenticated &&
-    user?.role !== "admin" &&
-    location.pathname.startsWith("/admin")
-  ) {
-    return <Navigate to="/unauthorized" replace />;
+  // 4. Role-based restrictions
+  if (isAuthenticated && user?.role === 'admin' && location.pathname.startsWith('/shopping')) {
+    console.log('CheckAuth: Admin tried to access shopping route, redirecting to /unauthorized');
+    return <Navigate to='/unauthorized' replace />;
   }
 
-  // 5️⃣ Prevent admin from accessing shopping
-  if (
-    isAuthenticated &&
-    user?.role === "admin" &&
-    location.pathname.startsWith("/shopping")
-  ) {
-    return <Navigate to="/unauthorized" replace />;
+  if (isAuthenticated && user?.role !== 'admin' && location.pathname.startsWith('/admin')) {
+    console.log('CheckAuth: Non-admin tried to access admin route, redirecting to /unauthorized');
+    return <Navigate to='/unauthorized' replace />;
   }
 
-  // 6️⃣ Otherwise → allow
+  // 5. Allow access
+  console.log(`CheckAuth: Allowing access to ${location.pathname}`);
   return <>{children}</>;
 }
 
