@@ -22,32 +22,51 @@ function ShoppingListing() {
   );
   const dispatch = useDispatch();
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
-  const [searchParams] = useSearchParams();
-  const [filters, setFilters] = useState(() => {
-    const storedFilters = JSON.parse(sessionStorage.getItem("filters")) || {};
-    const category = searchParams.get("category");
-    const brand = searchParams.get("brand");
-    return {
-      category: category ? [category] : storedFilters.category || [],
-      brand: brand ? [brand] : storedFilters.brand || [],
-    };
-  });
-  const [sort, setSort] = useState(localStorage.getItem("shoppingSort") || "price-lowtohigh");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [sort, setSort] = useState(
+    localStorage.getItem("shoppingSort") || "price-low-high"
+  );
   const [isOpen, setIsOpen] = useState(false);
 
-  const normalize = useCallback((val) => (val || "").toString().toLowerCase().trim(), []);
+  // Initialize and sync filters with searchParams
+  const [filters, setFilters] = useState({
+    category: searchParams.get("category") ? [searchParams.get("category")] : [],
+    brand: searchParams.get("brand") ? [searchParams.get("brand")] : [],
+    search: searchParams.get("search") || "",
+  });
+
+  const normalize = useCallback(
+    (val) => (val || "").toString().toLowerCase().trim(),
+    []
+  );
+
+  // Update filters when searchParams changes
+  useEffect(() => {
+    setFilters({
+      category: searchParams.get("category")
+        ? [searchParams.get("category")]
+        : [],
+      brand: searchParams.get("brand") ? [searchParams.get("brand")] : [],
+      search: searchParams.get("search") || "",
+    });
+  }, [searchParams]);
 
   const filteredProductList = [...(productList || [])]
     .filter((product) => {
       const category = normalize(product.category);
       const brand = normalize(product.brand);
+      const title = normalize(product.title);
+      const search = normalize(filters.search);
+
       const categoryMatch =
         !filters.category.length ||
         filters.category.some((c) => category === normalize(c));
       const brandMatch =
         !filters.brand.length ||
         filters.brand.some((b) => brand === normalize(b));
-      return categoryMatch && brandMatch;
+      const searchMatch = !search || title.includes(search);
+
+      return categoryMatch && brandMatch && searchMatch;
     })
     .sort((a, b) => {
       if (!sort) return 0;
@@ -84,7 +103,9 @@ function ShoppingListing() {
       if (indexOfCurrentItem > -1) {
         const getQuantity = getCartItems[indexOfCurrentItem].quantity;
         if (getQuantity + 1 > totalStock) {
-          toast.error(`Only ${getQuantity} quantity can be added for this item`);
+          toast.error(
+            `Only ${getQuantity} quantity can be added for this item`
+          );
           return;
         }
       }
@@ -119,8 +140,23 @@ function ShoppingListing() {
         ? current.filter((id) => id !== normalizedOption)
         : [...current, normalizedOption];
       const updated = { ...prev, [sectionId]: newSelections };
-      localStorage.setItem("shoppingFilters", JSON.stringify(updated));
-      sessionStorage.setItem("filters", JSON.stringify(updated));
+
+      const newSearchParams = new URLSearchParams(searchParams);
+      if (sectionId === "search") {
+        if (newSelections.length) {
+          newSearchParams.set(sectionId, newSelections[0]);
+        } else {
+          newSearchParams.delete(sectionId);
+        }
+      } else {
+        if (newSelections.length) {
+          newSearchParams.set(sectionId, newSelections[0]);
+        } else {
+          newSearchParams.delete(sectionId);
+        }
+      }
+
+      setSearchParams(newSearchParams);
       return updated;
     });
   };
@@ -151,7 +187,9 @@ function ShoppingListing() {
           </h2>
           <div className="flex items-center gap-3">
             <span className="text-gray-500 dark:text-gray-400">
-              {isLoading ? "Loading..." : `${filteredProductList.length} Products`}
+              {isLoading
+                ? "Loading..."
+                : `${filteredProductList.length} Products`}
             </span>
             <div className="relative">
               <Button
@@ -166,7 +204,9 @@ function ShoppingListing() {
                 <ArrowUpDownIcon className="h-4 w-4" />
                 <span>
                   {sort
-                    ? `Sort: ${sortOptions.find((s) => s.id === sort)?.label}`
+                    ? `Sort: ${
+                        sortOptions.find((s) => s.id === sort)?.label
+                      }`
                     : "Sort by"}
                 </span>
               </Button>
@@ -198,7 +238,9 @@ function ShoppingListing() {
             ))
           ) : (
             <p className="text-center text-gray-500 col-span-full">
-              {isLoading ? "Loading products..." : "No products match the selected filters."}
+              {isLoading
+                ? "Loading products..."
+                : "No products match the selected filters."}
             </p>
           )}
         </div>

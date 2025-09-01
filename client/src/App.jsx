@@ -52,6 +52,14 @@ function App() {
   return (
     <div className='flex flex-col overflow-hidden bg-white'>
       <Routes>
+         <Route
+          path='/'
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user} isLoading={isLoading}>
+              <AuthLayout />
+            </CheckAuth>
+          }
+        />
         <Route
           path='/auth'
           element={
@@ -71,11 +79,13 @@ function App() {
             </CheckAuth>
           }
         >
+           <Route index element={<AdminDashboard />} />
           <Route path='dashboard' element={<AdminDashboard />} />
           <Route path='products' element={<AdminProducts />} />
           <Route path='orders' element={<AdminOrders />} />
           <Route path='features' element={<AdminFeatures />} />
         </Route>
+        
         <Route
           path='/shopping'
           element={
@@ -84,7 +94,9 @@ function App() {
             </CheckAuth>
           }
         >
-          <Route path='home' element={<ShoppingHome />} />
+          
+        <Route index element={<ShoppingHome />} />
+         <Route path='home' element={<ShoppingHome />} />
           <Route path='listing' element={<ShoppingListing />} />
           <Route path='checkout' element={<ShoppingCheckout />} />
           <Route path='account' element={<ShoppingAccount />} />

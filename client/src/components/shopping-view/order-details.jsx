@@ -1,63 +1,92 @@
-
 import { DialogContent } from "../ui/dialog";
 import { Label } from "../ui/label";
-import CommonForm from "../common/form";
 import { Separator } from "../ui/separator";
-import { useState } from "react"; 
+import { Badge } from "../ui/badge";
+import { useSelector } from "react-redux";
 
+function ShoppingOrderDetailsView({ orderDetails }) {
+  const { user } = useSelector((state) => state.auth);
 
-function ShoppingOrderDetailsView(){
-return (
-     <DialogContent  className="sm:max-w-[6000px]">
-<div className="grid gap-6">
-    <div className="grid gap-2">
-<div className="flex items-center justify-between mt-2">
-<p className="font-medium">Order ID</p>
-<Label>123456</Label>
-</div>
-<div className="flex items-center justify-between mt-2">
-<p className="font-medium">Order Date </p>
-<Label>27 Aug 2025</Label>
-</div>
-<div className="flex items-center justify-between mt-2">
-<p className="font-medium">Order Status </p>
-<Label>in process</Label>
-</div>
-<div className="flex items-center justify-between mt-2">
-<p className="font-medium">Order price </p>
-<Label>$200</Label>
-</div>
-<Separator></Separator>
-<div className="grid gap-4">
-<div className="grid gap-2">
-<div className="font-medium">Order Details</div>
-<ul className="grid gap-3">
-    <li className="flex items-center justify-between">
-        <span>Product one </span>
-        <span>$100</span>
-    </li>
-</ul>
-</div>
-</div>
-<div className="grid gap-4">
-   <div className="grid gap-2">
-    <div className="font-medium">Shipping Info</div>
-    <div className="grid gap-0.5 text-muted-foreground">
-        <span>john doy</span>
+  return (
+    <DialogContent className="sm:max-w-[800px]">
+      <div className="space-y-6">
+        {/* Order Info */}
+        <div className="grid gap-4">
+          <div className="grid grid-cols-2 gap-2">
+            <p className="font-medium">Order ID</p>
+            <Label>{orderDetails?._id}</Label>
 
-<span>Address</span>
-<span>City</span>
-<span>Pincode</span>
-<span>Phone</span>
-<span>Notes</span>
-    </div>
-    </div> 
-</div>
+            <p className="font-medium">Order Date</p>
+            <Label>{orderDetails?.orderDate.split("T")[0]}</Label>
 
+            <p className="font-medium">Order Status</p>
+            <Badge
+              className={`p-2 border rounded-3xl ${
+                orderDetails?.orderStatus === "confirmed"
+                  ? "bg-green-600"
+                  : "bg-black"
+              }`}
+            >
+              {orderDetails?.orderStatus}
+            </Badge>
 
-    </div>
-</div>
+            <p className="font-medium">Payment Method</p>
+            <Label>{orderDetails?.paymentMethod}</Label>
+
+            <p className="font-medium">Order Price</p>
+            <Label>${orderDetails?.totalAmount}</Label>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Order Details */}
+        <div className="space-y-2">
+          <div className="font-medium">Order Details</div>
+          <ul className="space-y-2">
+            {orderDetails?.cartItems &&
+              orderDetails?.cartItems.length > 0 &&
+              orderDetails?.cartItems.map((item, index) => (
+                <li
+                  key={index}
+                  className="grid grid-cols-3 gap-2 text-sm border-b pb-1"
+                >
+                  <span>Title: {item.title}</span>
+                  <span>Quantity: {item.quantity}</span>
+                  <span>Price: ${item.price}</span>
+                </li>
+              ))}
+          </ul>
+        </div>
+
+        <Separator />
+
+        {/* Shipping Info */}
+        <div className="space-y-2">
+          <div className="font-medium">Shipping Info</div>
+          <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+            <span>Name:</span>
+            <span>{user?.userName}</span>
+
+            <span>Address:</span>
+            <span>{orderDetails?.addressInfo?.address}</span>
+
+            <span>City:</span>
+            <span>{orderDetails?.addressInfo?.city}</span>
+
+            <span>Pincode:</span>
+            <span>{orderDetails?.addressInfo?.pincode}</span>
+
+            <span>Phone:</span>
+            <span>{orderDetails?.addressInfo?.phone}</span>
+
+            <span>Notes:</span>
+            <span>{orderDetails?.addressInfo?.notes}</span>
+          </div>
+        </div>
+      </div>
     </DialogContent>
-)
+  );
 }
+
 export default ShoppingOrderDetailsView;

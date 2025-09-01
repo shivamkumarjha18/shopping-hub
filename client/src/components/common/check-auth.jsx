@@ -31,7 +31,7 @@ function CheckAuth({ isAuthenticated, user, children, isLoading }) {
       console.log('CheckAuth: Admin user, redirecting to /admin');
       return <Navigate to='/admin' replace />;
     }
-    console.log('CheckAuth: Non-admin user, redirecting to /shopping');
+    console.log('CheckAuth: Non-admin user, redirecting to /shopping/home');
     return <Navigate to='/shopping/home' replace />;
   }
 

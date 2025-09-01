@@ -5,7 +5,7 @@ import UserCartItemsContent from "@/components/shopping-view/cart-items-content"
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { createNewOrder } from "@/store/shop/order-slice";
-
+import { toast } from "sonner";
 function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart);
   const { user } = useSelector((state) => state.auth);
@@ -31,12 +31,12 @@ function ShoppingCheckout() {
   // ✅ payment handler
   function handleInitiatePaypalPayment() {
     if (!cartItems || cartItems.items.length === 0) {
-      console.log("Cart is empty!");
+ toast.error("Your cart is empty. Please add items to proceed");
       return;
     }
 
     if (!currentSelectedAddress) {
-      console.log("Please select address!");
+    toast.error("Please select one address to proceed.");
       return;
     }
 
